@@ -12,14 +12,6 @@ def ensure_package(package):
         print(f"[INFO] {package} is already installed.")
 
 
-ensure_package("rich")
-
-# Now you can use it!
-from rich.console import Console
-
-console = Console()
-console.print("[bold green]Hello, Rich world![/bold green]")
-
 # Intance the object we will need
 menu = Menu()
 
