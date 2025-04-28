@@ -2,8 +2,7 @@ from logging import PlaceHolder
 from rich.console import Console
 from rich.table import Table
 from rich.style import Style
-from sqlHandler import SQLHandler
-import sqlHandler
+from app.sqlHandler import SQLHandler
 
 
 class Menu:
@@ -12,13 +11,6 @@ class Menu:
         self.sqlHandler = SQLHandler()
 
     def ShowMainMenu(self):
-        # 3. Define a function called print_menu()
-        #    Inside it:
-        #    - Create a Table object with a title, e.g., "Main Menu"
-        #    - Add two columns: "Option" and "Action"
-        #    - Add rows for each menu option (example: 1. Register user, 2. Add book, etc.)
-        #    - Finally, print the table using the Console
-
         table = Table(title="BookTracker")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")

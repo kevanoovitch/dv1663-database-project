@@ -1,0 +1,5 @@
+-[x] complete option 1: login/registration 
+-[] complete option 2: add a new book  
+-[] complete option 3
+-[] complete option 4 
+-[] complete option 5 

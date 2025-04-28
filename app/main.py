@@ -1,7 +1,7 @@
 import subprocess
 import sys
 import importlib.util
-from menu import Menu
+from app.menu import Menu
 
 
 def ensure_package(package):

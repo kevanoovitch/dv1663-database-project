@@ -12,7 +12,7 @@ class SQLHandler:
 
         username = input("Enter Username:")
 
-        self.cursor.execute("SELECT * FROM Users WHERE Username = ?", (username))
+        self.cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
         user = self.cursor.fetchone()
 
         if user:
@@ -30,7 +30,7 @@ class SQLHandler:
             # Do insert (Registration)
             email = input("enter email:")
             self.cursor.execute(
-                "INSERT INTO Users (Username,Email) Values (?,?)", (username, email)
+                "INSERT INTO Users (Username,Email) Values (%s,%s)", (username, email)
             )
             self.conn.commit()
             print(f"User {username} registered successfully!")
