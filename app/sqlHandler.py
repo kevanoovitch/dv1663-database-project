@@ -36,15 +36,15 @@ class SQLHandler:
         user = self.cursor.fetchone()
 
         if user:
-            self._UserLogin(username)
+            self._UserLogin(username, user)
         else:
-            self._UserReg(username)
+            self._UserReg(username, user)
 
-    def _UserLogin(self, username):
+    def _UserLogin(self, username, user):
         print(f"Welcome back, {username}!")
-        self._currentUserID = username
+        self._currentUserID = user[0]
 
-    def _UserReg(self, username):
+    def _UserReg(self, username, user):
         answer = input(f"{username} not found do you want to register y/n?")
 
         if answer.lower() == "y":
@@ -55,7 +55,7 @@ class SQLHandler:
             )
             self.conn.commit()
             print(f"User {username} registered successfully!")
-            self._currentUserID = username
+            self._currentUserID = user[0]
 
         else:
             print("Returning to main menu...")
@@ -82,9 +82,12 @@ class SQLHandler:
 
         # 6. Insert (user_id, book_id, status, NULL rating, NULL review, today's date) into UserBooks
         today = datetime.date.today()
-        self.cursor.execute(  # type: ignore
+        self.cursor.execute(
             "INSERT INTO UserBooks(UserID, BookID, status, rating, review, dateAdded) Values(%s, %s, %s, NULL, NULL, %s)",
-            cast(Sequence[Any], (userID, book, selectedList, today)),
+            (userID, book, selectedList, today),
+        )
+        print(
+            f'[orange3]Added to your "[italic dark_orange3]{selectedList}[/italic dark_orange3]" list[/orange3]'
         )
 
     def _LookUpBook(self, book):
@@ -182,8 +185,6 @@ class SQLHandler:
         selectedGenres = questionary.checkbox(
             "Select the genres:", choices=genres
         ).ask()
-
-        print(f"You selected: {', '.join(selectedGenres)}")
 
         return selectedGenres
 
