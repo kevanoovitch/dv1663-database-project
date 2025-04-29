@@ -1,6 +1,8 @@
 from sql.db import create_connection
 import questionary
+from rich import print
 from typing import TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from app.menu import Menu  # for type hinting only
@@ -20,9 +22,9 @@ class SQLHandler:
     def _VerifyLoggedInUser(self):
         if self._currentUserID == None:
             print("author_ids action requries you to be logged in!")
-            self.menu.ShowMainMenu()
+            return False
         else:
-            return
+            return True
 
     def UserAuth(self):
         # Will look up user
@@ -40,6 +42,7 @@ class SQLHandler:
 
     def _UserLogin(self, username):
         print(f"Welcome back, {username}!")
+        self._currentUserID = username
 
     def _UserReg(self, username):
         answer = input(f"{username} not found do you want to register y/n?")
@@ -52,6 +55,7 @@ class SQLHandler:
             )
             self.conn.commit()
             print(f"User {username} registered successfully!")
+            self._currentUserID = username
 
         else:
             print("Returning to main menu...")
@@ -59,7 +63,8 @@ class SQLHandler:
     def AddBook(self):
 
         # TODO Verfiy user status
-        self._VerifyLoggedInUser()
+        if self._VerifyLoggedInUser() == False:
+            return
 
         # Ask for book title
         bookTitle = input("What is the title of the book?")
@@ -95,6 +100,9 @@ class SQLHandler:
             pass
         else:
             # if none found start addingProcedure
+            print(
+                "[bold red]This book is not in the db, starting adding procedure[/bold red]"
+            )
             self._addBookToDb(book)
             # search & return created book
             return self._LookUpBook(book)
@@ -109,7 +117,7 @@ class SQLHandler:
         # check if author exist
         # self.cursor.execute("SELECT * FROM Books WHERE title=%s", (book,))
 
-        self.cursor.execute("SELECT author_id FROM Authors WHERE name=%s", (author,))
+        self.cursor.execute("SELECT AuthorID FROM Authors WHERE name=%s", (author,))
         authorResult = self.cursor.fetchone()
 
         # INSERTs
@@ -118,7 +126,7 @@ class SQLHandler:
         if authorResult:
             authorID = authorResult[0]
         else:
-            self.cursor.execute("INSERT INTO Authors (name) Values(%s)", (author))
+            self.cursor.execute("INSERT INTO Authors (Name) Values(%s)", (author,))
             self.conn.commit()
             self.cursor.execute("SELECT LAST_INSERT_ID()")
             authorID = self.cursor.fetchone()[0]
@@ -126,7 +134,7 @@ class SQLHandler:
         # 2. Insert the book
         self.cursor.execute(
             "INSERT INTO Books (title, AuthorID, publishedYear) VALUES (%s, %s, %s)",
-            (bookTitle, author, pubYear),
+            (bookTitle, authorID, pubYear),
         )
         self.conn.commit()
 
@@ -183,9 +191,9 @@ class SQLHandler:
         selectedList = questionary.select(
             "Which booklist do you want to add the book to?",
             choices=[
-                ("Want to read", "wantToRead"),
-                ("Currently Reading", "currentlyReading"),
-                ("Read", "Read"),
+                "Want to read",
+                "Currently Reading",
+                "Read",
             ],
         ).ask()
         return selectedList

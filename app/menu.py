@@ -14,7 +14,6 @@ class Menu:
         table = Table(title="BookTracker")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")
-
         table.add_row("1", "Login/Sign up a user")
         table.add_row("2", "Add a new book")
         table.add_row("3", "Rate a book")
@@ -32,7 +31,7 @@ class Menu:
             if userInput == "1":
                 self.sqlHandler.UserAuth()
             elif userInput == "2":
-                print("[PlaceHolder] Add a new book")
+                self.sqlHandler.AddBook()
             elif userInput == "3":
                 print("[PlaceHolder] Rate a book")
             elif userInput == "4":
