@@ -21,10 +21,14 @@ class SQLHandler:
 
     def _VerifyLoggedInUser(self):
         if self._currentUserID == None:
-            print("author_ids action requries you to be logged in!")
+            print("[bold red]That action requries you to be logged in![/bold red]")
             return False
         else:
             return True
+
+    # ===========================================
+    #            1. USER AUTHENTICATION
+    # ===========================================
 
     def UserAuth(self):
         # Will look up user
@@ -60,9 +64,12 @@ class SQLHandler:
         else:
             print("Returning to main menu...")
 
+    # ===========================================
+    #           2. Add book to list and db
+    # ===========================================
+
     def AddBook(self):
 
-        # TODO Verfiy user status
         if self._VerifyLoggedInUser() == False:
             return
 
@@ -198,3 +205,36 @@ class SQLHandler:
             ],
         ).ask()
         return selectedList
+
+    # ===========================================
+    #            3. Show users lists
+    # ===========================================
+
+    def ViewUserList(self):
+        # Verify login
+        if self._VerifyLoggedInUser() == False:
+            return
+        # Select list
+        selectedList = self._SelectReadingList()
+
+        # Print the list
+        self.cursor.execute(
+            """
+                            SELECT title, Authors.Name, Books.publishedYear 
+                            FROM UserBooks 
+                            JOIN Books ON UserBooks.BookID = Books.BookID
+                            JOIN Authors ON Books.AuthorID = Authors.AuthorID
+                            WHERE UserBooks.UserID = %s AND UserBooks.status = %s
+                        """,
+            (self._currentUserID, selectedList),
+        )
+
+        books = self.cursor.fetchall()
+
+        if not books:
+            print(f"[bold red] No books foun in your '{selectedList}' list.[/bold red]")
+            return
+
+        print(f"[bold green] Books in your '{selectedList}' list:[/bold green]")
+        for title, author, year in books:
+            print(f"- {title} by {author} ({year})")

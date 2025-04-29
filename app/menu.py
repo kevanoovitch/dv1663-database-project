@@ -35,7 +35,7 @@ class Menu:
             elif userInput == "3":
                 print("[PlaceHolder] Rate a book")
             elif userInput == "4":
-                print("[PlaceHolder] View your reading list")
+                self.sqlHandler.ViewUserList()
             elif userInput == "5":
                 print("[PlaceHolder] View average rating")
             else:

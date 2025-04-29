@@ -5,6 +5,7 @@
 -[x] Eradicate all snake cases
 -[x] Update ERD to use correct notation 
 -[x] break and return to main menu
+-[] Fix error in select list query 
 -[] complete option 4 : See your lists 
 -[] Fix not being able to add the same book twice to a list 
 -[] complete option 3
