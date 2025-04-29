@@ -2,25 +2,19 @@ from logging import PlaceHolder
 from rich.console import Console
 from rich.table import Table
 from rich.style import Style
+from app.sqlHandler import SQLHandler
 
 
 class Menu:
     def __init__(self):
         self.console = Console()
+        self.sqlHandler = SQLHandler(self)
 
     def ShowMainMenu(self):
-        # 3. Define a function called print_menu()
-        #    Inside it:
-        #    - Create a Table object with a title, e.g., "Main Menu"
-        #    - Add two columns: "Option" and "Action"
-        #    - Add rows for each menu option (example: 1. Register user, 2. Add book, etc.)
-        #    - Finally, print the table using the Console
-
         table = Table(title="BookTracker")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")
-
-        table.add_row("1", "Register a new user")
+        table.add_row("1", "Login/Sign up a user")
         table.add_row("2", "Add a new book")
         table.add_row("3", "Rate a book")
         table.add_row("4", "View your reading list")
@@ -35,9 +29,9 @@ class Menu:
             userInput = self.console.input()  # get the input
 
             if userInput == "1":
-                print("[PlaceHolderlder]Register a new user")
+                self.sqlHandler.UserAuth()
             elif userInput == "2":
-                print("[PlaceHolder] Add a new book")
+                self.sqlHandler.AddBook()
             elif userInput == "3":
                 print("[PlaceHolder] Rate a book")
             elif userInput == "4":

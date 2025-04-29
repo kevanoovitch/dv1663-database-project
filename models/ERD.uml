@@ -1,0 +1,54 @@
+@startuml
+
+entity "User" as U {
+  *UserID : int <<PK>>
+  --
+  username : string
+  email : string
+}
+
+entity "Books" as B {
+  *BookID : int <<PK>>
+  --
+  title : string 
+  AuthorID : int <<FK>>
+  publishedYear : int 
+}
+
+entity "Authors" as A {
+  *AuthorID : int <<PK>>
+  --
+  name : string
+}
+
+entity "Genres" as G {
+  *GenreID : int <<PK>>
+  --
+  genreName : string
+}
+
+entity "UserBooks" as UB {
+    *userBookID : int <<PK>>
+    --
+    UserID : int <<FK>>
+    BookID : int <<FK>>
+    status : string <<read,wantToRead,currentlyReading>>
+    rating : int <<optional>>
+    review : string <<optional>>
+    dateAdded : date
+}
+
+entity "BookGenres" as BG {
+    *id : int <<PK>>
+    --
+    BookID : int <<FK>>
+    GenreID : int <<FK>>
+}
+
+U ||--o{ UB : has
+B ||--o{ UB : appears_in
+A ||--|| B : writes
+B ||--o{ BG
+G ||--o{ BG
+
+@enduml

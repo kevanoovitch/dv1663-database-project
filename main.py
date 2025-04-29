@@ -1,7 +1,7 @@
 import subprocess
 import sys
 import importlib.util
-from menu import Menu
+from app.menu import Menu
 
 
 def ensure_package(package):
@@ -11,14 +11,6 @@ def ensure_package(package):
     else:
         print(f"[INFO] {package} is already installed.")
 
-
-ensure_package("rich")
-
-# Now you can use it!
-from rich.console import Console
-
-console = Console()
-console.print("[bold green]Hello, Rich world![/bold green]")
 
 # Intance the object we will need
 menu = Menu()
