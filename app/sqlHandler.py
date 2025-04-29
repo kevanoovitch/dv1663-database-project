@@ -1,11 +1,28 @@
 from sql.db import create_connection
 import questionary
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.menu import Menu  # for type hinting only
+import datetime
+from typing import cast, Sequence, Any
 
 
 class SQLHandler:
-    def __init__(self):
+    def __init__(self, menu: "Menu"):
         self.conn = create_connection()
         self.cursor = self.conn.cursor()
+
+        # Attributes
+        self._currentUserID = None
+        self.menu = menu
+
+    def _VerifyLoggedInUser(self):
+        if self._currentUserID == None:
+            print("author_ids action requries you to be logged in!")
+            self.menu.ShowMainMenu()
+        else:
+            return
 
     def UserAuth(self):
         # Will look up user
@@ -41,19 +58,29 @@ class SQLHandler:
 
     def AddBook(self):
 
+        # TODO Verfiy user status
+        self._VerifyLoggedInUser()
+
         # Ask for book title
         bookTitle = input("What is the title of the book?")
 
-        # Will look for the book in the table
         # _LookUpBook will ask the user to add info if it does not exist
-        book = _LookUpBook(self, bookTitle)
+        book = self._LookUpBook(bookTitle)
 
         # When the book is created/found
 
         # Ask user which list to add to
+        selectedList = self._SelectReadingList()
 
+        # Get userID
+        userID = self._currentUserID
 
-        # If selected list doesnt exist add it
+        # 6. Insert (user_id, book_id, status, NULL rating, NULL review, today's date) into UserBooks
+        today = datetime.date.today()
+        self.cursor.execute(  # type: ignore
+            "INSERT INTO UserBooks(UserID, BookID, status, rating, review, dateAdded) Values(%s, %s, %s, NULL, NULL, %s)",
+            cast(Sequence[Any], (userID, book, selectedList, today)),
+        )
 
     def _LookUpBook(self, book):
         self.cursor.execute("SELECT * FROM Books WHERE title=%s", (book,))
@@ -61,7 +88,7 @@ class SQLHandler:
 
         # if unique found great
         if len(bookResult) == 1:
-            return bookResult[0]
+            return bookResult[0][0]  # Return BookID
         elif len(bookResult) > 1:
             # TODO: Show options and let user pick
             # if multiple return all option
@@ -75,7 +102,7 @@ class SQLHandler:
     def _addBookToDb(self, bookTitle):
         author = input("Who is the author of the book?")
         pubYear = input("What is the publishing year?")
-        genres = self._SelectGenres()
+        genresList = self._SelectGenres()
 
         print(f"adding {bookTitle} by {author}, ({pubYear}) to database")
 
@@ -98,7 +125,7 @@ class SQLHandler:
 
         # 2. Insert the book
         self.cursor.execute(
-            "INSERT INTO Books (title, author_id, published_year) VALUES (%s, %s, %s)"
+            "INSERT INTO Books (title, AuthorID, publishedYear) VALUES (%s, %s, %s)",
             (bookTitle, author, pubYear),
         )
         self.conn.commit()
@@ -126,7 +153,8 @@ class SQLHandler:
 
             # Link genre to book
             self.cursor.execute(
-                "INSERT INTO BookGenres (book_id,genre_id) Values(%s,%s)", (bookID, genreID)
+                "INSERT INTO BookGenres (book_id,genre_id) Values(%s,%s)",
+                (bookID, genreID),
             )
         self.conn.commit()
         print(f"Successfully added '{bookTitle}' with genres: {', '.join(genresList)}.")
@@ -150,13 +178,14 @@ class SQLHandler:
         print(f"You selected: {', '.join(selectedGenres)}")
 
         return selectedGenres
-    
+
     def _SelectReadingList(self):
-        selectedList= questionary.select(
-            "Which booklist do you want to add the book to?"
+        selectedList = questionary.select(
+            "Which booklist do you want to add the book to?",
             choices=[
-                ("Want to read","wantToRead"),
+                ("Want to read", "wantToRead"),
                 ("Currently Reading", "currentlyReading"),
-                ("Read","Read")
-            ]).ask()
+                ("Read", "Read"),
+            ],
+        ).ask()
         return selectedList

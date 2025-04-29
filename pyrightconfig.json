@@ -1,0 +1,10 @@
+{
+  "typeCheckingMode": "basic",
+  "executionEnvironments": [
+    {
+      "root": "./",
+      "extraPaths": ["./app", "./sql"]
+    }
+  ]
+}
+

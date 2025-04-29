@@ -8,7 +8,7 @@ from app.sqlHandler import SQLHandler
 class Menu:
     def __init__(self):
         self.console = Console()
-        self.sqlHandler = SQLHandler()
+        self.sqlHandler = SQLHandler(self)
 
     def ShowMainMenu(self):
         table = Table(title="BookTracker")

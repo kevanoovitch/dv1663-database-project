@@ -1,6 +1,10 @@
 -[x] complete option 1: login/registration 
+-[x] Add UserBooks in sql
 -[] complete option 2: add a new book  
 -[] add multiselect in _findBook()
+-[] Eradicate all snake cases
+-[] Update ERD to use correct notation 
+-[] break and return to main menu
 -[] complete option 3
 -[] complete option 4 
 -[] complete option 5 
