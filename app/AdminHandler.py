@@ -31,3 +31,23 @@ class AdminHandler:
                 print(f"ID: {UserID} Username: {Username} Email: {Email} [ADMIN]")
             else:
                 print(f"ID: {UserID} Username: {Username} Email: {Email} [USER]")
+
+    # ===========================================
+    #             Helper. Check for admin priviliges
+    # ===========================================
+
+    def CheckAdminPriv(self, UserID):
+        self.cursor.execute("SELECT isAdmin FROM Users WHERE UserID=%s", (UserID,))
+        result = self.cursor.fetchone()
+
+        if result:
+            # found the user
+
+            if result[0] == True:
+                # Found user and they had admin rights
+                return True
+
+            return False
+        else:
+            # did not find the userID
+            return False

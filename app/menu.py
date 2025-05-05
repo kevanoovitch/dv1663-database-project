@@ -12,6 +12,11 @@ class Menu:
         self.sqlHandler = SQLHandler(self)
         self.AdminHandler = AdminHandler(self)
 
+        self._currentUserID = None
+
+    def getCurrentUser(self):
+        return self.sqlHandler._currentUserID
+
     def ShowMainMenu(self):
         table = Table(title="BookTracker")
         table.add_column("Option", style="Cyan")
@@ -43,7 +48,8 @@ class Menu:
             elif userInput == "5":
                 print("[PlaceHolder] View average rating")
             elif userInput == "6":
-                print("[PlaceHolder] View Admin options")
+                if self._VerifyAdmin():
+                    self._UseAdminMenu()
             elif userInput == "7":
                 print("Exiting")
                 return
@@ -51,12 +57,15 @@ class Menu:
                 print("Error in main menu input try again")
 
     def ShowAdminMenu(self):
+
+        # Verify admin user
+
         table = Table(title="Admin options")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")
-        table.add_row("1", "Inport Dataset")
+        table.add_row("1", "Import Dataset")
         table.add_row("2", "View all users")
-        table.add_row("3", "Exit")
+        table.add_row("3", "return to main menu")
 
         self.console.print(table)
 
@@ -68,12 +77,30 @@ class Menu:
             if userInput == "1":
                 print("[PlaceHolder] for inport of dataset")
             elif userInput == "2":
-                print("[PlaceHolder] for listing all users")
+                self.AdminHandler.AdminListAllUsers()
             elif userInput == "3":
                 print("Returning to main menu")
-                self.ShowMainMenu()
+                return
             else:
                 print("Error in admin menu input try again")
+
+    def _VerifyAdmin(self):
+
+        self._currentUserID = self.getCurrentUser()
+
+        # if getCurrentUser = none
+        if self._currentUserID == None:
+            print("You will have to be a logged in to view this")
+            return False
+
+        # check userID in db for admin priv
+        result = self.AdminHandler.CheckAdminPriv(self._currentUserID)
+        if result:
+            # They are an admin
+            return True
+
+        print("Access denied")
+        return False
 
 
 if __name__ == "__main__":
