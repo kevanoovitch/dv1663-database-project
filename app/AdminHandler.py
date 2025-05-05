@@ -19,14 +19,6 @@ class AdminHandler:
     # ===========================================
 
     def ImportDataset(self):
-        definedGenres = [
-            "Fantasy",
-            "Science Fiction",
-            "Romance",
-            "Thriller",
-            "Non-fiction",
-            "Fiction",
-        ]
         # Title,Authors,Description,Category,Publisher,Publish Date,Price
 
         # For storing known authors to avoid duplicate inserts
@@ -52,7 +44,11 @@ class AdminHandler:
                 self._AddBook(title, authorID, yearPub)
 
                 # Convert category to a acceptable genre?
+                genreIDs = self._ConvertDsCategoriesToGenres(genres)
+                # Genres is now a list of ids
+
                 # Link Category to genre
+                # TODO: ask for mini steps and inplement the helper and run
 
     def _ConvertDateToYear(self, dateStr):
         try:
@@ -120,6 +116,35 @@ class AdminHandler:
             # retrieve the bookdID
             thisBookID = self.cursor.lastrowid
             return thisBookID
+
+    def _ConvertDsCategoriesToGenres(self, categories):
+        genreIDs = []
+        # split and then strip the categories
+        categories = categories.split(",")
+        cleanedCategories = [c.strip() for c in categories]
+
+        # Loop thorugh and check each category
+        for word in cleanedCategories:
+            # Match it to a know genre in db
+
+            self.cursor.execute(
+                "SELECT GenreID FROM Genres WHERE LOWER(GenreName)=%s",
+                (word.lower(),),
+            )
+            result = self.cursor.fetchone()
+            if result:
+                # there is a match
+                genreIDs.append(result[0])
+
+            else:
+                # insert a new genre
+                self.cursor.execute(
+                    "INSERT INTO Genres (GenreName) Values (%s)", (word,)
+                )
+                self.conn.commit()
+                genreIDs.append(self.cursor.lastrowid)
+
+        return genreIDs
 
     # ===========================================
     #            2. List all users
