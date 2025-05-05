@@ -21,16 +21,33 @@ class SQLHandler:
 
     def _VerifyLoggedInUser(self):
         if self._currentUserID == None:
-            print("author_ids action requries you to be logged in!")
+            print("[bold red]That action requries you to be logged in![/bold red]")
             return False
         else:
             return True
+
+    # ===========================================
+    #            1. USER AUTHENTICATION
+    # ===========================================
 
     def UserAuth(self):
         # Will look up user
         # Will start login or sign up procedure
 
         username = input("Enter Username:")
+
+        self.cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
+        user = self.cursor.fetchone()
+
+        # if this is first user make it an admin
+        self.cursor.execute("SELECT COUNT(*) FROM Users")
+        user_count = self.cursor.fetchone()[0]
+
+        if user_count == 0:
+            # This is the first user so create an admin
+            print("You are the first user so this has to be an admin")
+            self._AdminReg(username, user)
+            return
 
         self.cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
         user = self.cursor.fetchone()
@@ -60,9 +77,24 @@ class SQLHandler:
         else:
             print("Returning to main menu...")
 
+    def _AdminReg(self, username, user):
+        print("Starting Admin registration procedure")
+
+        email = input("Enter Email:")
+        self.cursor.execute(
+            "INSERT INTO Users (Username,Email,isAdmin) Values (%s,%s, %s)",
+            (username, email, True),
+        )
+
+        self.conn.commit()
+        print(f"Admin user '{username}' registered successfully.")
+
+    # ===========================================
+    #           2. Add book to list and db
+    # ===========================================
+
     def AddBook(self):
 
-        # TODO Verfiy user status
         if self._VerifyLoggedInUser() == False:
             return
 
@@ -198,3 +230,36 @@ class SQLHandler:
             ],
         ).ask()
         return selectedList
+
+    # ===========================================
+    #            3. Show users lists
+    # ===========================================
+
+    def ViewUserList(self):
+        # Verify login
+        if self._VerifyLoggedInUser() == False:
+            return
+        # Select list
+        selectedList = self._SelectReadingList()
+
+        # Print the list
+        self.cursor.execute(
+            """
+                            SELECT title, Authors.Name, Books.publishedYear 
+                            FROM UserBooks 
+                            JOIN Books ON UserBooks.BookID = Books.BookID
+                            JOIN Authors ON Books.AuthorID = Authors.AuthorID
+                            WHERE UserBooks.UserID = %s AND UserBooks.status = %s
+                        """,
+            (self._currentUserID, selectedList),
+        )
+
+        books = self.cursor.fetchall()
+
+        if not books:
+            print(f"[bold red] No books foun in your '{selectedList}' list.[/bold red]")
+            return
+
+        print(f"[bold green] Books in your '{selectedList}' list:[/bold green]")
+        for title, author, year in books:
+            print(f"- {title} by {author} ({year})")

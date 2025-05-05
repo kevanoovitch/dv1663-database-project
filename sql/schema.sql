@@ -1,9 +1,10 @@
 
 
-CREATE DATABASE IF NOT EXISTS BookTracker;
+-- CREATE DATABASE IF NOT EXISTS BookTracker;
 
 
--- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks;
+
+ -- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks;
 
 CREATE TABLE IF NOT EXISTS Authors (
 	AuthorID INT PRIMARY KEY AUTO_INCREMENT,
@@ -22,7 +23,8 @@ CREATE TABLE IF NOT EXISTS Books (
 CREATE TABLE IF NOT EXISTS Users (
 	UserID INT PRIMARY KEY AUTO_INCREMENT, 
 	Username varchar(20),
-	Email varchar(50)
+	Email varchar(50),
+	isAdmin BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS Genres (
