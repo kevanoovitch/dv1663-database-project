@@ -39,6 +39,19 @@ class SQLHandler:
         self.cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
         user = self.cursor.fetchone()
 
+        # if this is first user make it an admin
+        self.cursor.execute("SELECT COUNT(*) FROM Users")
+        user_count = self.cursor.fetchone()[0]
+
+        if user_count == 0:
+            # This is the first user so create an admin
+            print("You are the first user so this has to be an admin")
+            self._AdminReg(username, user)
+            return
+
+        self.cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
+        user = self.cursor.fetchone()
+
         if user:
             self._UserLogin(username, user)
         else:
@@ -63,6 +76,18 @@ class SQLHandler:
 
         else:
             print("Returning to main menu...")
+
+    def _AdminReg(self, username, user):
+        print("Starting Admin registration procedure")
+
+        email = input("Enter Email:")
+        self.cursor.execute(
+            "INSERT INTO Users (Username,Email,isAdmin) Values (%s,%s, %s)",
+            (username, email, True),
+        )
+
+        self.conn.commit()
+        print(f"Admin user '{username}' registered successfully.")
 
     # ===========================================
     #           2. Add book to list and db

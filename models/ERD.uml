@@ -5,6 +5,7 @@ entity "User" as U {
   --
   username : string
   email : string
+  isAdmin : boolean 
 }
 
 entity "Books" as B {
