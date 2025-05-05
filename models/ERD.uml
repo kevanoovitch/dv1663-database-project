@@ -3,8 +3,8 @@
 entity "User" as U {
   *UserID : int <<PK>>
   --
-  username : string
-  email : string
+  Username : string
+  Email : string
   isAdmin : boolean 
 }
 
@@ -19,13 +19,13 @@ entity "Books" as B {
 entity "Authors" as A {
   *AuthorID : int <<PK>>
   --
-  name : string
+  Name : string
 }
 
 entity "Genres" as G {
   *GenreID : int <<PK>>
   --
-  genreName : string
+  GenreName : string
 }
 
 entity "UserBooks" as UB {

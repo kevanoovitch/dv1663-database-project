@@ -2,7 +2,7 @@
 
 -- CREATE DATABASE IF NOT EXISTS BookTracker;
 
-
+DROP TABLE Books;
 
  -- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks;
 
@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS Authors (
 
 CREATE TABLE IF NOT EXISTS Books (
 	BookID INT PRIMARY KEY AUTO_INCREMENT,
-	ISBN VARCHAR(20),
 	Title varchar(1000),
 	PublishedYear INT,
 	AuthorID INT,  
