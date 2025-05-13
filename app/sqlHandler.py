@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from app.menu import Menu  # for type hinting only
+    from menu import Menu  # for type hinting only
 import datetime
 from typing import cast, Sequence, Any
 
@@ -72,7 +72,12 @@ class SQLHandler:
             )
             self.conn.commit()
             print(f"User {username} registered successfully!")
-            self._currentUserID = user[0]
+            self.cursor.execute(
+                "SELECT UserID FROM Users WHERE Username = %s", (username,)
+            )
+            result = self.cursor.fetchone()
+            if result:
+                self._currentUserID = result[0]
 
         else:
             print("Returning to main menu...")
@@ -257,7 +262,9 @@ class SQLHandler:
         books = self.cursor.fetchall()
 
         if not books:
-            print(f"[bold red] No books foun in your '{selectedList}' list.[/bold red]")
+            print(
+                f"[bold red] No books found in your '{selectedList}' list.[/bold red]"
+            )
             return
 
         print(f"[bold green] Books in your '{selectedList}' list:[/bold green]")

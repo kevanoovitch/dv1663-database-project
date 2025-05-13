@@ -1,7 +1,13 @@
 from sql.db import create_connection
 import questionary
 from rich import print
+from rich.progress import Progress
 from datetime import datetime
+import csv
+import os
+
+MAX_AUTHOR_LENGTH = 150
+TRUNCATE_NOTICE = " (more was truncated)"
 
 
 class AdminHandler:
@@ -25,10 +31,20 @@ class AdminHandler:
         # Author : Author ID
         addedAuthorIDs = {}
 
-        with open("kaggle_books.csv", newline="", encoding="utf-8") as csvfile:
+        file_path = questionary.text("Enter path to the dataset file:").ask()
+        if not self._VerifyPath(file_path):
+            return
+
+        with open(file_path, newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
+
+            rows = list(reader)
+        # Wrap in a progress meter
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Importing books...", total=len(rows))
+
             # map rows in source to a variable
-            for row in reader:
+            for row in rows:
                 author = row["Authors"]
                 title = row["Title"]
                 yearPub = row["Publish Date"]
@@ -41,14 +57,29 @@ class AdminHandler:
                 authorID = self._AddAuthor(author, addedAuthorIDs)
 
                 # insert book if it not already exists
-                self._AddBook(title, authorID, yearPub)
+                bookID = self._AddBook(title, authorID, yearPub)
 
                 # Convert category to a acceptable genre?
                 genreIDs = self._ConvertDsCategoriesToGenres(genres)
                 # Genres is now a list of ids
 
                 # Link Category to genre
-                # TODO: ask for mini steps and inplement the helper and run
+                self._linkGenreToBook(genreIDs, bookID)
+
+                progress.update(task, advance=1)
+
+    def _VerifyPath(self, path):
+        # Check if the path exists and is a file
+        if not os.path.isfile(path):
+            print("Error: Path does not exist or is not a file.")
+            return False
+
+        # Check if it ends with .csv (case-insensitive)
+        if not path.lower().endswith(".csv"):
+            print("Error: File is not a .csv file.")
+            return False
+
+        return True
 
     def _ConvertDateToYear(self, dateStr):
         try:
@@ -64,6 +95,7 @@ class AdminHandler:
         # Check added authors
         if addedIDs.get(author) is not None:
             # This author already exists
+            #
             newAuthorID = addedIDs[author]
             return newAuthorID
         else:
@@ -75,8 +107,19 @@ class AdminHandler:
                 newAuthorID = result[0]
                 return newAuthorID
             else:
-                # not in db add it with a new id
+                # If the schema is too small
+                if len(author) > MAX_AUTHOR_LENGTH:
+                    print(
+                        f"[WARN] Truncating overly long author name ({len(author)} chars)"
+                    )
+                    cutoff = MAX_AUTHOR_LENGTH - len(TRUNCATE_NOTICE)
+                    truncated = author[:cutoff]
+                    # Cut at last whitespace to avoid breaking a word
+                    if " " in truncated:
+                        truncated = truncated[: truncated.rfind(" ")]
+                    author = truncated + TRUNCATE_NOTICE
 
+                # not in db add it with a new id
                 self.cursor.execute("INSERT INTO Authors (Name) Values (%s)", (author,))
                 self.conn.commit()
 
@@ -125,6 +168,11 @@ class AdminHandler:
 
         # Loop thorugh and check each category
         for word in cleanedCategories:
+            # Warns if schema is to small
+            if len(word) > 55:
+                print(f"[!] Genre name too long ({len(word)} chars): {word}")
+                continue  # I dictate that all genres larger than 55 chars are not genres
+
             # Match it to a know genre in db
 
             self.cursor.execute(
@@ -146,7 +194,31 @@ class AdminHandler:
 
         return genreIDs
 
-    # ===========================================
+    def _linkGenreToBook(self, genreIDs, bookID):
+        for id in genreIDs:
+            # Check for duplicates
+            self.cursor.execute(
+                "SELECT * FROM BookGenres WHERE BookID = %s AND GenreID = %s",
+                (
+                    bookID,
+                    id,
+                ),
+            )
+            result = self.cursor.fetchone()
+            if not result:
+                self.cursor.execute(
+                    "INSERT INTO BookGenres (BookID,GenreID) VALUES (%s,%s)",
+                    (
+                        bookID,
+                        id,
+                    ),
+                )
+
+        self.conn.commit()
+        return
+
+        # ===========================================
+
     #            2. List all users
     # ===========================================
 

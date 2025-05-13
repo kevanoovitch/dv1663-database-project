@@ -75,7 +75,7 @@ class Menu:
             self.ShowAdminMenu()
             userInput = self.console.input()  # get the input
             if userInput == "1":
-                print("[PlaceHolder] for inport of dataset")
+                self.AdminHandler.ImportDataset()
             elif userInput == "2":
                 self.AdminHandler.AdminListAllUsers()
             elif userInput == "3":
