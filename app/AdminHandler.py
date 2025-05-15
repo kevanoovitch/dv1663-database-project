@@ -5,6 +5,7 @@ from rich.progress import Progress
 from datetime import datetime
 import csv
 import os
+from dateutil import parser
 
 MAX_AUTHOR_LENGTH = 150
 TRUNCATE_NOTICE = " (more was truncated)"
@@ -83,10 +84,9 @@ class AdminHandler:
 
     def _ConvertDateToYear(self, dateStr):
         try:
-            datetimeObject = datetime.strptime(dateStr, "%A, %B %d, %Y")
-            YearStr = str(datetimeObject.year)
-            return YearStr
-        except ValueError:
+            datetimeObject = parser.parse(dateStr)
+            return str(datetimeObject.year)
+        except (ValueError, TypeError):
             return None
 
     def _AddAuthor(self, author, addedIDs):
