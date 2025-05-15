@@ -4,16 +4,18 @@
 
 
 
- -- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks;
+-- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks;
+
+
+
 
 CREATE TABLE IF NOT EXISTS Authors (
 	AuthorID INT PRIMARY KEY AUTO_INCREMENT,
-	Name VARCHAR(30)
+	Name VARCHAR(175)
 );
 
 CREATE TABLE IF NOT EXISTS Books (
 	BookID INT PRIMARY KEY AUTO_INCREMENT,
-	ISBN VARCHAR(20),
 	Title varchar(1000),
 	PublishedYear INT,
 	AuthorID INT,  
@@ -27,9 +29,11 @@ CREATE TABLE IF NOT EXISTS Users (
 	isAdmin BOOLEAN DEFAULT FALSE
 );
 
+
+
 CREATE TABLE IF NOT EXISTS Genres (
 	GenreID INT PRIMARY KEY AUTO_INCREMENT,
-	GenreName VARCHAR(20)
+	GenreName VARCHAR(55)
 );
 
 CREATE TABLE IF NOT EXISTS BookGenres (
