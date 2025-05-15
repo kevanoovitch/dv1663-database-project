@@ -1,6 +1,7 @@
 from sql.db import create_connection
 import questionary
 from rich import print
+from rich.console import Console
 from typing import TYPE_CHECKING
 
 
@@ -108,6 +109,9 @@ class SQLHandler:
 
         # _LookUpBook will ask the user to add info if it does not exist
         book = self._LookUpBook(bookTitle)
+        if book == None:
+            # The book was not found and the function cancelled
+            return
 
         # When the book is created/found
 
@@ -140,9 +144,16 @@ class SQLHandler:
             pass
         else:
             # if none found start addingProcedure
-            print(
-                "[bold red]This book is not in the db, starting adding procedure[/bold red]"
+            console = Console()
+            console.print(
+                "This book is not in the db, do you want to start the adding procedure? y/n",
+                style="bold red",
             )
+            answer = input()
+
+            if answer.lower() == "n":
+                return None
+
             self._addBookToDb(book)
             # search & return created book
             return self._LookUpBook(book)
