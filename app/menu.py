@@ -42,7 +42,7 @@ class Menu:
             elif userInput == "2":
                 self.sqlHandler.AddBook()
             elif userInput == "3":
-                print("[PlaceHolder] Rate a book")
+                self.sqlHandler.RateBook()
             elif userInput == "4":
                 self.sqlHandler.ViewUserList()
             elif userInput == "5":

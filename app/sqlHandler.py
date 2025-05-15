@@ -281,3 +281,45 @@ class SQLHandler:
         print(f"[bold green] Books in your '{selectedList}' list:[/bold green]")
         for title, author, year in books:
             print(f"- {title} by {author} ({year})")
+
+    # ===========================================
+    #            4. Rate a book
+    # ===========================================
+
+    def RateBook(self):
+        # Verify that the user is logged in
+        if self._VerifyLoggedInUser() == False:
+            return
+
+        bookTitle = input("What is the title of the book?")
+
+        # _LookUpBook will ask the user to add info if it does not exist
+        book = self._LookUpBook(bookTitle)
+        if book == None:
+            # The book was not found and the function cancelled
+            return
+
+        # input rating
+        userRating = self._PickRating()
+
+        # use a sql proocedure to check that the book is in read else add it add the rating
+        review = "placeholder review"
+        bookID = book
+        self.cursor.callproc(
+            "RateBookProcedure", (self._currentUserID, bookID, userRating, review)
+        )
+        self.conn.commit()
+
+    def _PickRating(self):
+        userRating = questionary.select(
+            "What do you rate the book",
+            choices=[
+                "☆",
+                "☆☆",
+                "☆☆☆",
+                "☆☆☆☆",
+                "☆☆☆☆☆",
+            ],
+        ).ask()
+
+        return len(userRating)
