@@ -356,3 +356,47 @@ class SQLHandler:
             print("[bold yellow] No rating yet for this book.[/book yellow]")
         else:
             print(f"[green] Avreage rating:[/green] {avgRating:.2f}")
+
+    # ================================================
+    #            7. List a usersbooks based on genre
+    # ================================================
+
+    def ListBasedOnGenre(self):
+        # Verify login
+        if self._VerifyLoggedInUser() == False:
+            return
+
+        # ask for genre
+        genre = input("What is the genre?")
+
+        # Run the query
+        self.cursor.execute(
+            """
+            SELECT
+            b.Title,
+            ub.rating,
+            ub.status,
+            ub.review,
+            ub.dateAdded
+
+            FROM Users u 
+            JOIN UserBooks ub ON u.UserID = ub.UserID
+            JOIN Books b ON ub.bookID = b.BookID
+            JOIN BookGenres bg ON b.BookID = bg.BookID
+            JOIN Genres g ON bg.GenreID = g.GenreID 
+            WHERE u.UserID = %s AND g.GenreName = %s 
+            ORDER BY ub.dateAdded DESC; 
+            """,
+            (self._currentUserID, genre),
+        )
+
+        rows = self.cursor.fetchall()
+        if not rows:
+            print(f"[yellow] No books found in genre '{genre}' for user")
+            return
+
+        for row in rows:
+            title, rating, status, review, dateAdded = row
+            print(
+                f"\n{title}\nRating: {("⭐"*rating) or 'Not rated'}\nStatus: {status}\nReview: {review or 'None'}\nAdded: {dateAdded}"
+            )

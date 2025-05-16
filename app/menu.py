@@ -124,7 +124,7 @@ class Menu:
             if userInput == "1":
                 self.sqlHandler.ViewAvreageRating()
             elif userInput == "2":
-                print("WIP: List specifc books for a genre")
+                self.sqlHandler.ListBasedOnGenre()
             elif userInput == "3":
                 print("WIP: List specifc books for a genre")
             elif userInput == "4":
