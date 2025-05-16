@@ -335,6 +335,24 @@ class SQLHandler:
     #            5. Avreage Rating of a book
     # ===========================================
 
+    def ViewAvreageRating(self):
 
-def ViewAvreageRating(self):
-    return
+        # Look up the book and get the bookID
+        bookTitle = input("What is the title of the book?")
+
+        bookID = self._LookUpBook(bookTitle)
+
+        if bookID == None:
+            print("[bold red]Could not find the book returning to main menu[/bold red]")
+            return
+
+        # Call the sql function
+        self.cursor.execute("SELECT ReturnAvgRating(%s)", (bookID,))
+        result = self.cursor.fetchone()
+
+        avgRating = result[0]
+
+        if avgRating is None:
+            print("[bold yellow] No rating yet for this book.[/book yellow]")
+        else:
+            print(f"[green] Avreage rating:[/green] {avgRating:.2f}")
