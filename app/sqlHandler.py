@@ -443,3 +443,29 @@ class SQLHandler:
             table.add_row(username, status.capitalize())
 
         console.print(table)
+
+    # ===============================================================
+    #            9. View how many books the current user has read
+    # ===============================================================
+
+    def CountReadBooks(self):
+        self.console.clear()
+
+        self.cursor.execute(
+            """
+                SELECT COUNT(*) AS ReadCount
+                 FROM UserBooks
+                WHERE UserID = %s AND status = 'read';
+            """,
+            (self._currentUserID,),
+        )
+        result = self.cursor.fetchone()
+
+        if result == None or result[0] == 0:
+            self.console.print("[bold red]You have not read any books.[/bold red]")
+            return
+
+        readCount = result[0]
+        self.console.print(
+            f"[green]You have read[/green] [bold cyan]{readCount}[/bold cyan] [green]books.[/green]"
+        )

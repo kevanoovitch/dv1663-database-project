@@ -53,6 +53,7 @@ class Menu:
                 if self._VerifyAdmin():
                     self._UseAdminMenu()
             elif userInput == "6":
+                self.console.clear()
                 self.UseMoreMenu()
             elif userInput == "7":
                 print("Exiting")
@@ -113,7 +114,8 @@ class Menu:
         table.add_row("1", "View average rating")
         table.add_row("2", "List all your books for a specific genre")
         table.add_row("3", "View all users that has a book on a list")
-        table.add_row("4", "Exit to main menu")
+        table.add_row("4", "View the how many books you've read")
+        table.add_row("5", "Exit to main menu")
 
         self.console.print(table)
 
@@ -129,6 +131,8 @@ class Menu:
             elif userInput == "3":
                 self.sqlHandler.GetUserWithCommonBook()
             elif userInput == "4":
+                self.sqlHandler.CountReadBooks()
+            elif userInput == "5":
                 self.console.clear()
                 return
             else:

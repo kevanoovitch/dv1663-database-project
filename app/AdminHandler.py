@@ -223,7 +223,6 @@ class AdminHandler:
     # ===========================================
 
     def AdminListAllUsers(self):
-
         self.cursor.execute("SELECT * FROM Users")
 
         allUsers = self.cursor.fetchall()
