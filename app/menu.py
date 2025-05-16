@@ -25,8 +25,9 @@ class Menu:
         table.add_row("2", "Add a new book")
         table.add_row("3", "Rate a book")
         table.add_row("4", "View your reading list")
-        table.add_row("5", "View average rating")
-        table.add_row("6", "View Admin options")
+        # table.add_row("5", "View average rating")
+        table.add_row("5", "View Admin options")
+        table.add_row("6", "More")
         table.add_row("7", "Exit")
 
         self.console.print(table)
@@ -45,11 +46,13 @@ class Menu:
                 self.sqlHandler.RateBook()
             elif userInput == "4":
                 self.sqlHandler.ViewUserList()
-            elif userInput == "5":
+            elif userInput == "NAN":
                 self.sqlHandler.ViewAvreageRating()
-            elif userInput == "6":
+            elif userInput == "5":
                 if self._VerifyAdmin():
                     self._UseAdminMenu()
+            elif userInput == "6":
+                self.UseMoreMenu()
             elif userInput == "7":
                 print("Exiting")
                 return
@@ -101,6 +104,33 @@ class Menu:
 
         print("Access denied")
         return False
+
+    def ShowMoreMenu(self):
+        table = Table(title="BookTracker")
+        table.add_column("Option", style="Cyan")
+        table.add_column("Action", style="sky_blue3")
+        table.add_row("1", "View average rating")
+        table.add_row("2", "List all your books for a specific genre")
+        table.add_row("3", "View all users that has a book on a list")
+        table.add_row("4", "Exit to main menu")
+
+        self.console.print(table)
+
+    def UseMoreMenu(self):
+        while True:
+            self.ShowMoreMenu()
+            userInput = self.console.input()  # get the input
+
+            if userInput == "1":
+                self.sqlHandler.ViewAvreageRating()
+            elif userInput == "2":
+                print("WIP: List specifc books for a genre")
+            elif userInput == "3":
+                print("WIP: List specifc books for a genre")
+            elif userInput == "4":
+                return
+            else:
+                print("Error in more menu input try again")
 
 
 if __name__ == "__main__":
