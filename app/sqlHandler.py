@@ -110,8 +110,20 @@ class SQLHandler:
         # _LookUpBook will ask the user to add info if it does not exist
         book = self._LookUpBook(bookTitle)
         if book == None:
-            # The book was not found and the function cancelled
-            return
+            # The book was not found so add it
+            console = Console()
+            console.print(
+                "This book is not in the db, do you want to start the adding procedure? y/n",
+                style="bold red",
+            )
+            answer = input()
+
+            if answer.lower() == "n":
+                return None
+
+            self._addBookToDb(book)
+            # search & use created book
+            book = self._LookUpBook(book)
 
         # When the book is created/found
 
@@ -146,20 +158,7 @@ class SQLHandler:
             # if multiple return all option
             pass
         else:
-            # if none found start addingProcedure
-            console = Console()
-            console.print(
-                "This book is not in the db, do you want to start the adding procedure? y/n",
-                style="bold red",
-            )
-            answer = input()
-
-            if answer.lower() == "n":
-                return None
-
-            self._addBookToDb(book)
-            # search & return created book
-            return self._LookUpBook(book)
+            return None
 
     def _addBookToDb(self, bookTitle):
         author = input("Who is the author of the book?")
