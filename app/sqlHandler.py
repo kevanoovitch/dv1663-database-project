@@ -132,6 +132,9 @@ class SQLHandler:
         )
 
     def _LookUpBook(self, book):
+        """
+        Will return the bookID or None
+        """
         self.cursor.execute("SELECT * FROM Books WHERE title=%s", (book,))
         bookResult = self.cursor.fetchall()
 
@@ -261,7 +264,7 @@ class SQLHandler:
         # Print the list
         self.cursor.execute(
             """
-                            SELECT title, Authors.Name, Books.publishedYear 
+                            SELECT title, Authors.Name, Books.publishedYear, rating
                             FROM UserBooks 
                             JOIN Books ON UserBooks.BookID = Books.BookID
                             JOIN Authors ON Books.AuthorID = Authors.AuthorID
@@ -279,8 +282,13 @@ class SQLHandler:
             return
 
         print(f"[bold green] Books in your '{selectedList}' list:[/bold green]")
-        for title, author, year in books:
-            print(f"- {title} by {author} ({year})")
+
+        for title, author, year, rating in books:
+            if selectedList == "Read":
+                stars = "⭐" * rating if rating is not None else "Not rated"
+                print(f"- {title} by {author} ({year}) - Rating: {stars}")
+            else:
+                print(f"- {title} by {author} ({year})")
 
     # ===========================================
     #            4. Rate a book
@@ -323,3 +331,11 @@ class SQLHandler:
         ).ask()
 
         return len(userRating)
+
+    # ===========================================
+    #            5. Avreage Rating of a book
+    # ===========================================
+
+
+def ViewAvreageRating(self):
+    return

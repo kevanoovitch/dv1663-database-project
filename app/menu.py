@@ -46,7 +46,7 @@ class Menu:
             elif userInput == "4":
                 self.sqlHandler.ViewUserList()
             elif userInput == "5":
-                print("[PlaceHolder] View average rating")
+                self.sqlHandler.ViewAvreageRating()
             elif userInput == "6":
                 if self._VerifyAdmin():
                     self._UseAdminMenu()
