@@ -18,6 +18,7 @@ class Menu:
         return self.sqlHandler._currentUserID
 
     def ShowMainMenu(self):
+
         table = Table(title="BookTracker")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")
@@ -61,8 +62,6 @@ class Menu:
 
     def ShowAdminMenu(self):
 
-        # Verify admin user
-
         table = Table(title="Admin options")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")
@@ -82,6 +81,7 @@ class Menu:
             elif userInput == "2":
                 self.AdminHandler.AdminListAllUsers()
             elif userInput == "3":
+                self.console.clear()
                 print("Returning to main menu")
                 return
             else:
@@ -106,6 +106,7 @@ class Menu:
         return False
 
     def ShowMoreMenu(self):
+
         table = Table(title="BookTracker")
         table.add_column("Option", style="Cyan")
         table.add_column("Action", style="sky_blue3")
@@ -126,8 +127,9 @@ class Menu:
             elif userInput == "2":
                 self.sqlHandler.ListBasedOnGenre()
             elif userInput == "3":
-                print("WIP: List specifc books for a genre")
+                self.sqlHandler.GetUserWithCommonBook()
             elif userInput == "4":
+                self.console.clear()
                 return
             else:
                 print("Error in more menu input try again")

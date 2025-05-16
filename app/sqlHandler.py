@@ -1,6 +1,7 @@
 from sql.db import create_connection
 import questionary
 from rich import print
+from rich.table import Table
 from rich.console import Console
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,7 @@ class SQLHandler:
     def __init__(self, menu: "Menu"):
         self.conn = create_connection()
         self.cursor = self.conn.cursor()
+        self.console = Console()
 
         # Attributes
         self._currentUserID = None
@@ -32,6 +34,7 @@ class SQLHandler:
     # ===========================================
 
     def UserAuth(self):
+        self.console.clear()
         # Will look up user
         # Will start login or sign up procedure
 
@@ -100,6 +103,7 @@ class SQLHandler:
     # ===========================================
 
     def AddBook(self):
+        self.console.clear()
 
         if self._VerifyLoggedInUser() == False:
             return
@@ -254,6 +258,7 @@ class SQLHandler:
     # ===========================================
 
     def ViewUserList(self):
+        self.console.clear()
         # Verify login
         if self._VerifyLoggedInUser() == False:
             return
@@ -294,6 +299,7 @@ class SQLHandler:
     # ===========================================
 
     def RateBook(self):
+        self.console.clear()
         # Verify that the user is logged in
         if self._VerifyLoggedInUser() == False:
             return
@@ -336,6 +342,7 @@ class SQLHandler:
     # ===========================================
 
     def ViewAvreageRating(self):
+        self.console.clear()
 
         # Look up the book and get the bookID
         bookTitle = input("What is the title of the book?")
@@ -362,6 +369,7 @@ class SQLHandler:
     # ================================================
 
     def ListBasedOnGenre(self):
+        self.console.clear()
         # Verify login
         if self._VerifyLoggedInUser() == False:
             return
@@ -369,7 +377,6 @@ class SQLHandler:
         # ask for genre
         genre = input("What is the genre?")
 
-        # Run the query
         self.cursor.execute(
             """
             SELECT
@@ -400,3 +407,39 @@ class SQLHandler:
             print(
                 f"\n{title}\nRating: {("⭐"*rating) or 'Not rated'}\nStatus: {status}\nReview: {review or 'None'}\nAdded: {dateAdded}"
             )
+
+    # ===============================================================
+    #            8. View all users that have a specifc book on a list
+    # ===============================================================
+    def GetUserWithCommonBook(self):
+        self.console.clear()
+        # Verify login
+        if self._VerifyLoggedInUser() == False:
+            return
+
+        # ask for book
+        book = input("What is the book title?")
+        bookID = self._LookUpBook(book)
+
+        self.cursor.execute(
+            """
+            SELECT u.Username, ub.status
+            FROM Users u
+            JOIN UserBooks ub ON u.UserID = ub.UserID
+            JOIN Books b ON ub.BookID = b.BookID
+            WHERE b.bookID = %s;
+            """,
+            (bookID,),
+        )
+        rows = self.cursor.fetchall()
+
+        console = Console()
+        table = Table(title="Users with This Book")
+
+        table.add_column("Username", style="cyan", no_wrap=True)
+        table.add_column("Status", style="magenta")
+
+        for username, status in rows:
+            table.add_row(username, status.capitalize())
+
+        console.print(table)
