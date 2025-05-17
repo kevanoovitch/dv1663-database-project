@@ -33,7 +33,7 @@ entity "UserBooks" as UB {
     --
     UserID : int <<FK>>
     BookID : int <<FK>>
-    status : string <<read,wantToRead,currentlyReading>>
+    status : string <<Read,wantToRead,currentlyReading>>
     rating : int <<optional>>
     review : string <<optional>>
     dateAdded : date

@@ -306,10 +306,9 @@ class SQLHandler:
 
         bookTitle = input("What is the title of the book?")
 
-        # _LookUpBook will ask the user to add info if it does not exist
         book = self._LookUpBook(bookTitle)
         if book == None:
-            # The book was not found and the function cancelled
+            # The book was not found and the function canceled
             return
 
         # input rating
@@ -338,7 +337,7 @@ class SQLHandler:
         return len(userRating)
 
     # ===========================================
-    #            5. Avreage Rating of a book
+    #            5. Average Rating of a book
     # ===========================================
 
     def ViewAvreageRating(self):
@@ -444,7 +443,6 @@ class SQLHandler:
 
         console.print(table)
 
-    # ===============================================================
     #            9. View how many books the current user has read
     # ===============================================================
 
@@ -455,7 +453,7 @@ class SQLHandler:
             """
                 SELECT COUNT(*) AS ReadCount
                  FROM UserBooks
-                WHERE UserID = %s AND status = 'read';
+                WHERE UserID = %s AND status = 'Read';
             """,
             (self._currentUserID,),
         )
