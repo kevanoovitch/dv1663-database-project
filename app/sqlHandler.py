@@ -4,10 +4,12 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 from typing import TYPE_CHECKING
+from app.AdminHandler import AdminHandler
 
 
 if TYPE_CHECKING:
     from menu import Menu  # for type hinting only
+
 import datetime
 from typing import cast, Sequence, Any
 
@@ -17,6 +19,7 @@ class SQLHandler:
         self.conn = create_connection()
         self.cursor = self.conn.cursor()
         self.console = Console()
+        self.admin_handler = AdminHandler(menu)
 
         # Attributes
         self._currentUserID = None
@@ -125,9 +128,7 @@ class SQLHandler:
             if answer.lower() == "n":
                 return None
 
-            self._addBookToDb(book)
-            # search & use created book
-            book = self._LookUpBook(book)
+        bookID = self._addBookToDb(bookTitle)
 
         # When the book is created/found
 
@@ -141,7 +142,7 @@ class SQLHandler:
         today = datetime.date.today()
         self.cursor.execute(
             "INSERT INTO UserBooks(UserID, BookID, status, rating, review, dateAdded) Values(%s, %s, %s, NULL, NULL, %s)",
-            (userID, book, selectedList, today),
+            (userID, bookID, selectedList, today),
         )
         print(
             f'[orange3]Added to your "[italic dark_orange3]{selectedList}[/italic dark_orange3]" list[/orange3]'
@@ -165,44 +166,50 @@ class SQLHandler:
             return None
 
     def _addBookToDb(self, bookTitle):
-        author = input("Who is the author of the book?")
+        rawAuthors = input("Who is the author (or authors, separated by 'and')?")
         pubYear = input("What is the publishing year?")
         genresList = self._SelectGenres()
 
-        print(f"adding {bookTitle} by {author}, ({pubYear}) to database")
+        # parse authors
+        authors = self.admin_handler.ParseAuthors(rawAuthors)
 
-        # check if author exist
-        # self.cursor.execute("SELECT * FROM Books WHERE title=%s", (book,))
+        print(f"adding {bookTitle} by {', '.join(authors)}, ({pubYear}) to database")
 
-        self.cursor.execute("SELECT AuthorID FROM Authors WHERE name=%s", (author,))
-        authorResult = self.cursor.fetchone()
-
-        # INSERTs
-        # 1. insert author if needed
-
-        if authorResult:
-            authorID = authorResult[0]
-        else:
-            self.cursor.execute("INSERT INTO Authors (Name) Values(%s)", (author,))
-            self.conn.commit()
-            self.cursor.execute("SELECT LAST_INSERT_ID()")
-            authorID = self.cursor.fetchone()[0]
-
-        # 2. Insert the book
+        # Insert book
         self.cursor.execute(
-            "INSERT INTO Books (title, AuthorID, publishedYear) VALUES (%s, %s, %s)",
-            (bookTitle, authorID, pubYear),
+            "INSERT INTO Books (Title,publishedYear) VALUES (%s,%s)",
+            (bookTitle, pubYear),
         )
         self.conn.commit()
 
-        # Get the newly inserted book's ID
         self.cursor.execute("SELECT LAST_INSERT_ID()")
         bookID = self.cursor.fetchone()[0]
 
-        # 3. insert genres
+        # Add authors and link to book
+
+        for author in authors:
+            self.cursor.execute(
+                "SELECT AuthorID FROM Authors WHERE Name = %s", (author,)
+            )
+            result = self.cursor.fetchone()
+
+            if result:
+                authorID = result[0]
+            else:
+                self.cursor.execute("INSERT INTO Authors (Name) VALUES (%s)", (author,))
+                self.conn.commit()
+                self.cursor.execute("SELECT LAST_INSERT_ID()")
+                authorID = self.cursor.fetchone()[0]
+
+            self.cursor.execute(
+                "INSERT INTO BookAuthors (BookID, AuthorID) VALUES (%s,%s)",
+                (bookID, authorID),
+            )
+
+        # Insertt genres and link to book
         for genreName in genresList:
             self.cursor.execute(
-                "SELECT genre_id FROM Genres WHERE genre_name=%s", (genreName,)
+                "SELECT GenreID FROM Genres WHERE GenreName=%s", (genreName,)
             )
             genreResult = self.cursor.fetchone()
 
@@ -210,19 +217,22 @@ class SQLHandler:
                 genreID = genreResult[0]
             else:
                 self.cursor.execute(
-                    "INSERT INTO Genres (genre_name) Values (%s)", (genreName,)
+                    "INSERT INTO Genres (GenreName) Values (%s)", (genreName,)
                 )
                 self.conn.commit()
-                self.cursor.execute("SELECT LAST_INSERT_ID()")
+                self.cursor.execute("SELECT LAST_INSERT_ID")
                 genreID = self.cursor.fetchone()[0]
 
-            # Link genre to book
+            # Link Genre to book
             self.cursor.execute(
-                "INSERT INTO BookGenres (book_id,genre_id) Values(%s,%s)",
+                "INSERT INTO BookGenres (BookID,GenreID) Values(%s,%s)",
                 (bookID, genreID),
             )
+
         self.conn.commit()
         print(f"Successfully added '{bookTitle}' with genres: {', '.join(genresList)}.")
+
+        return bookID
 
     def _SelectGenres(self):
         # A multi line select of defined genres
@@ -268,12 +278,18 @@ class SQLHandler:
         # Print the list
         self.cursor.execute(
             """
-                            SELECT title, Authors.Name, Books.publishedYear, rating
-                            FROM UserBooks 
-                            JOIN Books ON UserBooks.BookID = Books.BookID
-                            JOIN Authors ON Books.AuthorID = Authors.AuthorID
-                            WHERE UserBooks.UserID = %s AND UserBooks.status = %s
-                        """,
+            SELECT 
+                b.Title,
+                GROUP_CONCAT(DISTINCT a.Name SEPARATOR ', ') AS Authors,
+                b.PublishedYear,
+                ub.rating
+            FROM UserBooks ub
+            JOIN Books b ON ub.BookID = b.BookID
+            JOIN BookAuthors ba ON b.BookID = ba.BookID
+            JOIN Authors a ON ba.AuthorID = a.AuthorID
+            WHERE ub.UserID = %s AND ub.status = %s
+            GROUP BY b.BookID, b.Title, b.PublishedYear, ub.rating                        
+            """,
             (self._currentUserID, selectedList),
         )
 
@@ -309,6 +325,7 @@ class SQLHandler:
         book = self._LookUpBook(bookTitle)
         if book == None:
             # The book was not found and the function canceled
+            print("Didn't find the book in db check spelling or add it")
             return
 
         # input rating
@@ -443,6 +460,7 @@ class SQLHandler:
 
         console.print(table)
 
+    # ===============================================================
     #            9. View how many books the current user has read
     # ===============================================================
 

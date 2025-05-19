@@ -12,7 +12,6 @@ entity "Books" as B {
   *BookID : int <<PK>>
   --
   title : string 
-  AuthorID : int <<FK>>
   publishedYear : int 
 }
 
@@ -33,8 +32,8 @@ entity "UserBooks" as UB {
     --
     UserID : int <<FK>>
     BookID : int <<FK>>
-    status : string <<Read,wantToRead,currentlyReading>>
-    rating : int <<optional>>
+    status : string <<Read,Want to Read,Currently Reading>>
+    rating : int 
     review : string <<optional>>
     dateAdded : date
 }
@@ -46,10 +45,18 @@ entity "BookGenres" as BG {
     GenreID : int <<FK>>
 }
 
+entity "BookAuthors" as BA {
+    *id : int <<PK>>
+    --
+    BookID : int <<FK>>
+    AuthorID : int <<FK>>
+}
+
 U ||--o{ UB : has
 B ||--o{ UB : appears_in
-A ||--|| B : writes
-B ||--o{ BG
-G ||--o{ BG
+B ||--o{ BA : has
+A ||--o{ BA : writes
+B ||--o{ BG : categorized_as
+G ||--o{ BG : contains
 
 @enduml

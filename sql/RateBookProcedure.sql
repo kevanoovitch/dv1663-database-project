@@ -17,7 +17,9 @@ BEGIN
     END IF; 
 
     UPDATE UserBooks 
-    SET rating = p_rating, 
+    SET 
+    	status = 'Read',
+    	rating = p_rating, 
         review = p_review
     WHERE UserID = p_userID AND BookID = p_bookID;
 END

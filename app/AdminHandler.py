@@ -1,3 +1,4 @@
+from prompt_toolkit.styles import ReverseStyleTransformation
 from sql.db import create_connection
 import questionary
 from rich import print
@@ -46,7 +47,7 @@ class AdminHandler:
 
             # map rows in source to a variable
             for row in rows:
-                author = row["Authors"]
+                rawAuthors = row["Authors"]
                 title = row["Title"]
                 yearPub = row["Publish Date"]
                 genres = row["Category"]
@@ -55,10 +56,16 @@ class AdminHandler:
                 yearPub = self._ConvertDateToYear(yearPub)
 
                 # insert author if not already existing
-                authorID = self._AddAuthor(author, addedAuthorIDs)
+                authors = self.ParseAuthors(rawAuthors)
+                authorIDs = [
+                    self._AddAuthor(author.strip(), addedAuthorIDs)
+                    for author in authors
+                ]
 
                 # insert book if it not already exists
-                bookID = self._AddBook(title, authorID, yearPub)
+                bookID = self._AddBook(title, yearPub)
+
+                self._linkAuthorsToBook(authorIDs, bookID)
 
                 # Convert category to a acceptable genre?
                 genreIDs = self._ConvertDsCategoriesToGenres(genres)
@@ -68,6 +75,32 @@ class AdminHandler:
                 self._linkGenreToBook(genreIDs, bookID)
 
                 progress.update(task, advance=1)
+
+    def ParseAuthors(self, rawAuthorString):
+
+        if rawAuthorString.lower().startswith("by "):
+            rawAuthorString = rawAuthorString[3:]
+
+        authors = []
+
+        if " and " in rawAuthorString:
+            parts = rawAuthorString.split(" and ")
+        else:
+            parts = [rawAuthorString]
+
+        for part in parts:
+
+            if "," in part and not part.strip().endswith(")"):
+                subparts = part.split(",")
+
+                if len(subparts) == 2:
+                    authors.append(subparts[1].strip() + " " + subparts[0].strip())
+                else:
+                    authors.append(part.strip())
+            else:
+                authors.append(part.strip())
+
+        return authors
 
     def _VerifyPath(self, path):
         # Check if the path exists and is a file
@@ -131,29 +164,28 @@ class AdminHandler:
 
                 return newAuthorID
 
-    def _AddBook(self, title, authorID, yearPub):
+    def _AddBook(self, title, yearPub):
 
         # title + author = unique
 
         # Check if it exist in the db
         self.cursor.execute(
-            "SELECT bookID FROM Books WHERE Title=%s and AuthorID = %s",
+            "SELECT bookID FROM Books WHERE Title=%s and PublishedYear = %s",
             (
                 title,
-                authorID,
+                yearPub,
             ),
         )
         result = self.cursor.fetchone()
 
         if result:
             # it exists
-            thisBookID = result[0]
-            return thisBookID
+            return result[0]
         else:
             # insert it
             self.cursor.execute(
-                "INSERT INTO Books (Title,PublishedYear,AuthorID) Values (%s,%s,%s)",
-                (title, yearPub, authorID),
+                "INSERT INTO Books (Title,PublishedYear) Values (%s,%s)",
+                (title, yearPub),
             )
             self.conn.commit()
             # retrieve the bookdID
@@ -217,8 +249,20 @@ class AdminHandler:
         self.conn.commit()
         return
 
-        # ===========================================
+    def _linkAuthorsToBook(self, authorIDs, bookID):
+        for authorID in authorIDs:
+            self.cursor.execute(
+                "SELECT * FROM BookAuthors WHERE BookID = %s AND AuthorID = %s",
+                (bookID, authorID),
+            )
+            if not self.cursor.fetchone():
+                self.cursor.execute(
+                    "INSERT INTO BookAuthors (BookID,AuthorID) VALUES (%s,%s)",
+                    (bookID, authorID),
+                )
+        self.conn.commit()
 
+    # ===========================================
     #            2. List all users
     # ===========================================
 

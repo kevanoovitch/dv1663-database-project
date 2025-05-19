@@ -56,9 +56,13 @@ CREATE TABLE IF NOT EXISTS UserBooks (
 	FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
-
-
-
+CREATE TABLE BookAuthors (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    BookID INT,
+    AuthorID INT,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
+);
 
 
 
