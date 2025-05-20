@@ -24,6 +24,7 @@ BEGIN
         rating = p_rating, 
         review = p_review
     WHERE UserID = p_userID AND BookID = p_bookID;
+    LIMIT 1;
 END$$
 
 DELIMITER ;
