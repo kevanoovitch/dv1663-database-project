@@ -430,8 +430,14 @@ class SQLHandler:
 
         for row in rows:
             title, rating, status, review, dateAdded = row
+
+            if rating is None:
+                stars = "[dim]Not rated[/dim]"
+            else:
+                stars = "⭐" * rating
+
             print(
-                f"\n{title}\nRating: {("⭐"*rating) or 'Not rated'}\nStatus: {status}\nReview: {review or 'None'}\nAdded: {dateAdded}"
+                f"\n{title}\nRating: {stars}\nStatus: {status}\nReview: {review or 'None'}\nAdded: {dateAdded}"
             )
 
     # ===============================================================
