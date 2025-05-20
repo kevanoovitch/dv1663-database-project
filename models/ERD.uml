@@ -27,7 +27,8 @@ entity "Genres" as G {
   GenreName : string
 }
 
-entity "UserBooks" as UB {
+entity "UserBooks [R]" as UB #E6F2FF{
+    
     *userBookID : int <<PK>>
     --
     UserID : int <<FK>>
@@ -38,25 +39,25 @@ entity "UserBooks" as UB {
     dateAdded : date
 }
 
-entity "BookGenres" as BG {
+entity "BookGenres [R]" as BG #E6F2FF {
     *id : int <<PK>>
     --
     BookID : int <<FK>>
     GenreID : int <<FK>>
 }
 
-entity "BookAuthors" as BA {
-    *id : int <<PK>>
-    --
-    BookID : int <<FK>>
-    AuthorID : int <<FK>>
+entity "BookAuthors [R]" as BA #E6F2FF{
+  *id : int <<PK>>
+  --
+  BookID : int <<FK>>
+  AuthorID : int <<FK>>
 }
 
-U ||--o{ UB : has
-B ||--o{ UB : appears_in
-B ||--o{ BA : has
-A ||--o{ BA : writes
-B ||--o{ BG : categorized_as
-G ||--o{ BG : contains
+U ||--down--o{ UB : has
+B ||--down--o{ UB : appears_in
+B ||--down--o{ BA : has
+A ||--LEFT--o{ BA : writes
+B ||--down--o{ BG : categorized_as
+G ||--down--o{ BG : contains
 
 @enduml

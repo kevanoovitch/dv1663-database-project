@@ -4,7 +4,7 @@
 
 
 
-DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks,BookAuthors;
+-- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks,BookAuthors;
 
 
 
@@ -62,17 +62,6 @@ CREATE TABLE BookAuthors (
     FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
 );
 
-SELECT b.Title, g.GenreName
-FROM Books b
-JOIN BookGenres bg ON b.BookID = bg.BookID
-JOIN Genres g ON bg.GenreID = g.GenreID
-WHERE g.GenreName = 'Science Fiction';
-
-SELECT b.Title, g.GenreName
-FROM Books b
-JOIN BookGenres bg ON b.BookID = bg.BookID
-JOIN Genres g ON bg.GenreID = g.GenreID
-WHERE LOWER(g.GenreName) = 'science fiction';
 
 
 
