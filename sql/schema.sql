@@ -1,8 +1,8 @@
 
 
--- CREATE DATABASE IF NOT EXISTS BookTracker;
+CREATE DATABASE IF NOT EXISTS BookTracker;
 
-
+USE BookTracker;
 
 -- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks,BookAuthors;
 

@@ -1,5 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `BookTracker`.`RateBookProcedure`(
-	IN p_userID INT,
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RateBookProcedure`(
+    IN p_userID INT,
     IN p_bookID INT,
     IN p_rating INT,
     IN p_review VARCHAR(500)
@@ -18,8 +20,10 @@ BEGIN
 
     UPDATE UserBooks 
     SET 
-    	status = 'Read',
-    	rating = p_rating, 
+        status = 'Read',
+        rating = p_rating, 
         review = p_review
     WHERE UserID = p_userID AND BookID = p_bookID;
-END
+END$$
+
+DELIMITER ;

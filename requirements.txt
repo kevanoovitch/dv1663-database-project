@@ -1,0 +1,5 @@
+mysql-connector-python==9.3.0
+prompt_toolkit==3.0.51
+python-dateutil==2.9.0.post0
+questionary==2.1.0
+rich==14.0.0
