@@ -17,10 +17,10 @@ It allows users to register, add books, rate and manage a personal reading list.
 ![Main Menu](images/MainMenu.png)
 
 ### Rated books
-![Main Menu](images/RatingsOuput.png)
+![Ratings](images/RatingsOuput.png)
 
 ### Userbooks based on genre
-![Main Menu](images/GenreOutput.png)
+![Genres](images/GenreOutput.png)
 
 
 
