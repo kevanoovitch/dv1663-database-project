@@ -11,6 +11,19 @@ It allows users to register, add books, rate and manage a personal reading list.
 - MySQL
 - DBeaver (for database management)
 
+## Screenshots
+### Main Menu
+
+![Main Menu](images/MainMenu.png)
+
+### Rated books
+![Main Menu](images/RatingsOuput.png)
+
+### Userbooks based on genre
+![Main Menu](images/GenreOutput.png)
+
+
+
 ## Dependencies
 
 ### **Manually Installed Dependencies**
