@@ -4,7 +4,7 @@
 
 
 
--- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks;
+-- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks,BookAuthors;
 
 
 
@@ -63,6 +63,10 @@ CREATE TABLE BookAuthors (
     FOREIGN KEY (BookID) REFERENCES Books(BookID),
     FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
 );
+
+SELECT * FROM Books; 
+
+SELECT * FROM Authors; 
 
 
 

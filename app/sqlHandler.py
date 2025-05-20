@@ -115,8 +115,8 @@ class SQLHandler:
         bookTitle = input("What is the title of the book?")
 
         # _LookUpBook will ask the user to add info if it does not exist
-        book = self._LookUpBook(bookTitle)
-        if book == None:
+        bookID = self._LookUpBook(bookTitle)
+        if bookID == None:
             # The book was not found so add it
             console = Console()
             console.print(
@@ -128,7 +128,7 @@ class SQLHandler:
             if answer.lower() == "n":
                 return None
 
-        bookID = self._addBookToDb(bookTitle)
+            bookID = self._addBookToDb(bookTitle)
 
         # When the book is created/found
 
@@ -152,17 +152,27 @@ class SQLHandler:
         """
         Will return the bookID or None
         """
-        self.cursor.execute("SELECT * FROM Books WHERE title=%s", (book,))
+        self.cursor.execute(
+            "SELECT * FROM Books WHERE LOWER(title) = LOWER(%s)", (book,)
+        )
         bookResult = self.cursor.fetchall()
 
         # if unique found great
         if len(bookResult) == 1:
             return bookResult[0][0]  # Return BookID
         elif len(bookResult) > 1:
-            # TODO: Show options and let user pick
-            # if multiple return all option
-            pass
-        else:
+            print("[yellow]Multiple books found with similar titles:[/yellow]")
+            for idx, row in enumerate(bookResult):
+                book_id, title, year, *_ = row
+                print(f"{idx + 1}. {title} ({year}) - ID: {book_id}")
+            choice = input(
+                "Enter the number of the correct book (or press Enter to cancel): "
+            )
+            if choice.isdigit():
+                choice_index = int(choice) - 1
+                if 0 <= choice_index < len(bookResult):
+                    return bookResult[choice_index][0]  # BookID       else:
+            print("[red]Cancelled selection.[/red]")
             return None
 
     def _addBookToDb(self, bookTitle):
