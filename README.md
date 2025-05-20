@@ -4,6 +4,8 @@ This is a final project for the DV1663 course at BTH.
 The project is a console-based Python application inspired by Goodreads.  
 It allows users to register, add books, rate and manage a personal reading list.
 
+**This project was designed and tested on Ubuntu and Lubuntu.**
+
 ## Technologies Used
 - Python 3
 - MySQL
@@ -76,4 +78,8 @@ mysql.connector.connect(
 (sudo) mysql -u root -p BookTracker < sql/RateBookProcedure.sql
 (sudo) mysql -u root -p BookTracker < sql/ReturnAvgRating.sql
 ```
-In essence run schema.sql,RateBookProcedure.sql,ReturnAvgRating.sql in that order. So you can just aswell run it through dbBeaver
+```
+python3 main.py
+```
+
+In essence run schema.sql, RateBookProcedure.sql, ReturnAvgRating.sql in that order. So you can just aswell run it through dbBeaver
