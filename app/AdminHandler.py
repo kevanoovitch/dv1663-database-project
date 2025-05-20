@@ -14,13 +14,11 @@ TRUNCATE_NOTICE = " (more was truncated)"
 
 class AdminHandler:
 
-    def __init__(self, menu: "Menu"):
-        self.conn = create_connection()
+    def __init__(self, menu: "Menu", conn):
+        self.conn = conn
         self.cursor = self.conn.cursor()
-
-        # Attributes
-        self._currentUserID = None
         self.menu = menu
+        self._currentUserID = None
 
     # ===========================================
     #            1. Import dataset

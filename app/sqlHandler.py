@@ -18,8 +18,9 @@ class SQLHandler:
     def __init__(self, menu: "Menu"):
         self.conn = create_connection()
         self.cursor = self.conn.cursor()
+        self.admin_handler = AdminHandler(menu, self.conn)
+
         self.console = Console()
-        self.admin_handler = AdminHandler(menu)
 
         # Attributes
         self._currentUserID = None
@@ -173,7 +174,9 @@ class SQLHandler:
                 if 0 <= choice_index < len(bookResult):
                     return bookResult[choice_index][0]  # BookID       else:
             print("[red]Cancelled selection.[/red]")
-            return None
+
+        # else  Not found
+        return None
 
     def _addBookToDb(self, bookTitle):
         rawAuthors = input("Who is the author (or authors, separated by 'and')?")
@@ -219,7 +222,8 @@ class SQLHandler:
         # Insertt genres and link to book
         for genreName in genresList:
             self.cursor.execute(
-                "SELECT GenreID FROM Genres WHERE GenreName=%s", (genreName,)
+                "SELECT GenreID FROM Genres WHERE LOWER(GenreName)=LOWER(%s)",
+                (genreName,),
             )
             genreResult = self.cursor.fetchone()
 
@@ -230,7 +234,7 @@ class SQLHandler:
                     "INSERT INTO Genres (GenreName) Values (%s)", (genreName,)
                 )
                 self.conn.commit()
-                self.cursor.execute("SELECT LAST_INSERT_ID")
+                self.cursor.execute("SELECT LAST_INSERT_ID()")
                 genreID = self.cursor.fetchone()[0]
 
             # Link Genre to book
@@ -257,8 +261,14 @@ class SQLHandler:
         ]
 
         selectedGenres = questionary.checkbox(
-            "Select the genres:", choices=genres
+            "Select the genres: \n <space> to select then enter", choices=genres
         ).ask()
+
+        if not selectedGenres:
+            print(
+                "[bold red]You did not select anything! Press <space> to select and then Enter.[/bold red]"
+            )
+            self._SelectGenres()
 
         return selectedGenres
 
@@ -417,7 +427,7 @@ class SQLHandler:
             JOIN Books b ON ub.bookID = b.BookID
             JOIN BookGenres bg ON b.BookID = bg.BookID
             JOIN Genres g ON bg.GenreID = g.GenreID 
-            WHERE u.UserID = %s AND g.GenreName = %s 
+            WHERE u.UserID = %s AND LOWER(g.GenreName) = LOWER(%s)
             ORDER BY ub.dateAdded DESC; 
             """,
             (self._currentUserID, genre),

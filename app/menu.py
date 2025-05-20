@@ -10,8 +10,7 @@ class Menu:
     def __init__(self):
         self.console = Console()
         self.sqlHandler = SQLHandler(self)
-        self.AdminHandler = AdminHandler(self)
-
+        self.AdminHandler = self.sqlHandler.admin_handler
         self._currentUserID = None
 
     def getCurrentUser(self):

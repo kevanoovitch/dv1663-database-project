@@ -4,7 +4,7 @@
 
 
 
--- DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks,BookAuthors;
+DROP TABLE Authors, Books, Users, Genres, BookGenres, UserBooks,BookAuthors;
 
 
 
@@ -17,9 +17,7 @@ CREATE TABLE IF NOT EXISTS Authors (
 CREATE TABLE IF NOT EXISTS Books (
 	BookID INT PRIMARY KEY AUTO_INCREMENT,
 	Title varchar(1000),
-	PublishedYear INT,
-	AuthorID INT,  
-	FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
+	PublishedYear INT
 );
 
 CREATE TABLE IF NOT EXISTS Users (
@@ -64,9 +62,18 @@ CREATE TABLE BookAuthors (
     FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
 );
 
-SELECT * FROM Books; 
+SELECT b.Title, g.GenreName
+FROM Books b
+JOIN BookGenres bg ON b.BookID = bg.BookID
+JOIN Genres g ON bg.GenreID = g.GenreID
+WHERE g.GenreName = 'Science Fiction';
 
-SELECT * FROM Authors; 
+SELECT b.Title, g.GenreName
+FROM Books b
+JOIN BookGenres bg ON b.BookID = bg.BookID
+JOIN Genres g ON bg.GenreID = g.GenreID
+WHERE LOWER(g.GenreName) = 'science fiction';
+
 
 
 
